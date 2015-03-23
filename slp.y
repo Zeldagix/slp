@@ -11,8 +11,8 @@ void yyerror(const char* s);
 %}
 
 %union {
-	std::string *string;
-	int token;
+    std::string *string;
+    int token;
 }
 
 %token <string> TIDENTIFIER TINTEGER
@@ -25,40 +25,40 @@ void yyerror(const char* s);
 
 %%
 
-statement		:	statement TSEMI statement { cout << "1" << endl; }
-				|	TIDENTIFIER TASSIGN expression { cout << "2" << endl; }
-				|	TPRINT TLPAREN expressionList TRPAREN { cout << "3" << endl; }
-				;
+statement       :   statement TSEMI statement { cout << "1" << endl; }
+                |   TIDENTIFIER TASSIGN expression { cout << "2" << endl; }
+                |   TPRINT TLPAREN expressionList TRPAREN { cout << "3" << endl; }
+                ;
 
-expression		:	TIDENTIFIER { cout << "4" << endl; }
-				|	TINTEGER { cout << "5" << endl; }
-				|	expression TPLUS expression { cout << "6 " << "+" << endl; }
-				|	expression TMINUS expression { cout << "6 " << "-" << endl; }
-				|	expression TMUL expression { cout << "6 " << "*" << endl; }
-				|	expression TDIV expression { cout << "6 " << "/" << endl; }
-				|	TLPAREN statement TCOMMA expression TRPAREN { cout << "7" << endl; }
-				;
+expression      :   TIDENTIFIER { cout << "4" << endl; }
+                |   TINTEGER { cout << "5" << endl; }
+                |   expression TPLUS expression { cout << "6 " << "+" << endl; }
+                |   expression TMINUS expression { cout << "6 " << "-" << endl; }
+                |   expression TMUL expression { cout << "6 " << "*" << endl; }
+                |   expression TDIV expression { cout << "6 " << "/" << endl; }
+                |   TLPAREN statement TCOMMA expression TRPAREN { cout << "7" << endl; }
+                ;
 
-expressionList	:	expression { cout << "8" << endl; }
-				|	expressionList TCOMMA expression { cout << "9" << endl; }
-				;
+expressionList  :   expression { cout << "8" << endl; }
+                |   expressionList TCOMMA expression { cout << "9" << endl; }
+                ;
 
 %%
 
 int main(int, char** argv) {
-	FILE *myfile = fopen(argv[1], "r");
-	if (!myfile) {
-		cout << "I can't open " <<  argv[1] << "!" << endl;
-		return -1;
-	}
-	yyin = myfile;
+    FILE *myfile = fopen(argv[1], "r");
+    if (!myfile) {
+        cout << "I can't open " <<  argv[1] << "!" << endl;
+        return -1;
+    }
+    yyin = myfile;
 
-	do {
-		yyparse();
-	} while (!feof(yyin));
+    do {
+        yyparse();
+    } while (!feof(yyin));
 }
 
 void yyerror(const char *s) {
-	cout << "EEK, parse error! Message: " << s << endl;
-	exit(-1);
+    cout << "EEK, parse error! Message: " << s << endl;
+    exit(-1);
 }
