@@ -2,7 +2,6 @@
 #include <cstdio>
 #include <iostream>
 #include "node.h"
-using namespace std;
 
 extern "C" int yylex();
 extern "C" int yyparse();
@@ -39,7 +38,7 @@ void yyerror(const char* s);
 program         :   statement { programRoot = $1; }
 
 statement       :   statement TSEMI statement { $$ = new CompoundStm(*$1, *$3); }
-                |   TIDENTIFIER TASSIGN expression {  }
+                |   TIDENTIFIER TASSIGN expression { $$ = new AssignStm(*$1, *$3); }
                 |   TPRINT TLPAREN expressionList TRPAREN { $$ = new PrintStm(*$3); }
                 ;
 
@@ -61,17 +60,16 @@ expressionList  :   expression { $$ = new LastExpList(*$1); }
 int main(int, char** argv) {
     FILE *myfile = fopen(argv[1], "r");
     if (!myfile) {
-        cout << "I can't open " <<  argv[1] << "!" << endl;
+        std::cout << "I can't open " <<  argv[1] << "!" << std::endl;
         return -1;
     }
     yyin = myfile;
-
     do {
         yyparse();
     } while (!feof(yyin));
 }
 
 void yyerror(const char *s) {
-    cout << "EEK, parse error! Message: " << s << endl;
+    std::cout << "EEK, parse error! Message: " << s << std::endl;
     exit(-1);
 }

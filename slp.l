@@ -2,7 +2,6 @@
 #include <iostream>
 #include "node.h"
 #include "slp.tab.h"
-using namespace std;
 
 #define YY_DECL extern "C" int yylex()
 #define SAVE_TOKEN yylval.string = new std::string(yytext, yyleng)
@@ -22,8 +21,8 @@ using namespace std;
 "("                     return TOKEN(TLPAREN);
 ")"                     return TOKEN(TRPAREN);
 "print"                 return TOKEN(TPRINT);
-[a-zA-z][a-zA-Z0-9]*    SAVE_TOKEN; return TOKEN(TIDENTIFIER);
-[0-9]+                  SAVE_TOKEN; return TOKEN(TINTEGER);
-.                       cout << "Unknown token!" << endl; yyterminate();
+[a-zA-z][a-zA-Z0-9]*    SAVE_TOKEN; return TIDENTIFIER;
+[0-9]+                  SAVE_TOKEN; return TINTEGER;
+.                       std::cout << "Unknown token!" << std::endl; yyterminate();
 
 %%
