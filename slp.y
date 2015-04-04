@@ -1,16 +1,23 @@
 %{
 #include <cstdio>
 #include <iostream>
+#include "node.h"
 using namespace std;
 
 extern "C" int yylex();
 extern "C" int yyparse();
 extern "C" FILE *yyin;
 
+Node *programRoot;
+
 void yyerror(const char* s);
 %}
 
 %union {
+    Node *node;
+    Exp *expr;
+    Stm *stmt;
+    ExpList *exprlist;
     std::string *string;
     int token;
 }
@@ -20,27 +27,33 @@ void yyerror(const char* s);
 %token <token> TLPAREN TRPAREN TCOMMA TSEMI
 %token <token> TPLUS TMINUS TMUL TDIV
 
+%type <expr> expression
+%type <stmt> program statement
+%type <exprlist> expressionList
+
 %left TPLUS TMINUS
 %left TMUL TDIV
 
 %%
 
-statement       :   statement TSEMI statement { cout << "1" << endl; }
-                |   TIDENTIFIER TASSIGN expression { cout << "2" << endl; }
-                |   TPRINT TLPAREN expressionList TRPAREN { cout << "3" << endl; }
+program         :   statement { programRoot = $1; }
+
+statement       :   statement TSEMI statement { $$ = new CompoundStm(*$1, *$3); }
+                |   TIDENTIFIER TASSIGN expression {  }
+                |   TPRINT TLPAREN expressionList TRPAREN { $$ = new PrintStm(*$3); }
                 ;
 
-expression      :   TIDENTIFIER { cout << "4" << endl; }
-                |   TINTEGER { cout << "5" << endl; }
-                |   expression TPLUS expression { cout << "6 " << "+" << endl; }
-                |   expression TMINUS expression { cout << "6 " << "-" << endl; }
-                |   expression TMUL expression { cout << "6 " << "*" << endl; }
-                |   expression TDIV expression { cout << "6 " << "/" << endl; }
-                |   TLPAREN statement TCOMMA expression TRPAREN { cout << "7" << endl; }
+expression      :   TIDENTIFIER { $$ = new IdExp(*$1); }
+                |   TINTEGER { $$ = new NumExp(atol($1->c_str())); }
+                |   expression TPLUS expression { $$ = new OpExp(*$1, OpExp::Plus, *$3); }
+                |   expression TMINUS expression { $$ = new OpExp(*$1, OpExp::Minus, *$3); }
+                |   expression TMUL expression { $$ = new OpExp(*$1, OpExp::Times, *$3); }
+                |   expression TDIV expression { $$ = new OpExp(*$1, OpExp::Div, *$3); }
+                |   TLPAREN statement TCOMMA expression TRPAREN { $$ = new EseqExp(*$2, *$4); }
                 ;
 
-expressionList  :   expression { cout << "8" << endl; }
-                |   expressionList TCOMMA expression { cout << "9" << endl; }
+expressionList  :   expression { $$ = new LastExpList(*$1); }
+                |   expressionList TCOMMA expression { $$ = new PairExpList(*$1, *$3); }
                 ;
 
 %%

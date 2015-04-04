@@ -79,9 +79,9 @@ class ExpList : public Node {
 
 class PairExpList : public ExpList {
 public:
-    Exp& head;
-    ExpList& tail;
-    PairExpList(Exp& head, ExpList& tail) :
+    ExpList& head;
+    Exp& tail;
+    PairExpList(ExpList& head, Exp& tail) :
         head(head), tail(tail) { }
 };
 

@@ -1,5 +1,6 @@
 %{
 #include <iostream>
+#include "node.h"
 #include "slp.tab.h"
 using namespace std;
 
