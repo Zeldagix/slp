@@ -1,7 +1,7 @@
-slp.tab.c slp.tab.h: slp.y node.o
+slp.tab.c slp.tab.h: slp.y
 	bison -d slp.y
 
-lex.yy.c: slp.l slp.tab.h node.o
+lex.yy.c: slp.l slp.tab.h
 	flex slp.l
 
 slp: lex.yy.c slp.tab.c slp.tab.h

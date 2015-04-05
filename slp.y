@@ -70,9 +70,12 @@ int main(int, char** argv) {
         yyparse();
     } while (!feof(yyin));
 
-    //ASTWalker(programRoot);
+    fclose(yyin);
+
+    ASTWalker(programRoot);
 
     delete programRoot;
+
 }
 
 void yyerror(const char *s) {
