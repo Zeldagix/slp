@@ -57,8 +57,6 @@ expressionList  :   expression { $$ = new LastExpList($1); }
 
 %%
 
-void ASTWalker(Node *node);
-
 int main(int, char** argv) {
     FILE *myfile = fopen(argv[1], "r");
     if (!myfile) {
@@ -72,7 +70,8 @@ int main(int, char** argv) {
 
     fclose(yyin);
 
-    ASTWalker(programRoot);
+    programRoot->prettyPrint();
+    std::cout << std::endl;
 
     delete programRoot;
 
@@ -81,60 +80,4 @@ int main(int, char** argv) {
 void yyerror(const char *s) {
     std::cout << "EEK, parse error! Message: " << s << std::endl;
     exit(-1);
-}
-
-void ASTWalker(Node *node) {
-    std::string nodeType = node->nodeType;
-
-    if (nodeType.compare("CompoundStm") == 0) {
-        CompoundStm *cast = static_cast<CompoundStm*>(node);
-        ASTWalker(cast->stm1);
-        std::cout << ";" << std::endl;
-        ASTWalker(cast->stm2);
-    }
-    else if (nodeType.compare("AssignStm") == 0) {
-        AssignStm *cast = static_cast<AssignStm*>(node);
-        std::cout << cast->id << std::endl;
-        std::cout << ":=" << std::endl;
-        ASTWalker(cast->exp);
-    }
-    else if (nodeType.compare("PrintStm") == 0) {
-        PrintStm *cast = static_cast<PrintStm*>(node);
-        std::cout << "print" << std::endl;
-        std::cout << "(" << std::endl;
-        ASTWalker(cast->exps);
-        std::cout << ")" << std::endl;
-    }
-    else if (nodeType.compare("IdExp") == 0) {
-        IdExp *cast = static_cast<IdExp*>(node);
-        std::cout << cast->id << std::endl;
-    }
-    else if (nodeType.compare("NumExp") == 0) {
-        NumExp *cast = static_cast<NumExp*>(node);
-        std::cout << cast->num << std::endl;
-    }
-    else if (nodeType.compare("OpExp") == 0) {
-        OpExp *cast = static_cast<OpExp*>(node);
-        ASTWalker(cast->left);
-        std::cout << "BinOp " << cast->oper << std::endl;
-        ASTWalker(cast->right);
-    }
-    else if (nodeType.compare("EseqExp") == 0) {
-        EseqExp *cast = static_cast<EseqExp*>(node);
-        std::cout << "(" << std::endl;
-        ASTWalker(cast->stm);
-        std::cout << "," << std::endl;
-        ASTWalker(cast->exp);
-        std::cout << ")" << std::endl;
-    }
-    else if (nodeType.compare("PairExpList") == 0) {
-        PairExpList *cast = static_cast<PairExpList*>(node);
-        ASTWalker(cast->head);
-        std::cout << "," << std::endl;
-        ASTWalker(cast->tail);
-    }
-    else if (nodeType.compare("LastExpList") == 0) {
-        LastExpList *cast = static_cast<LastExpList*>(node);
-        ASTWalker(cast->head);
-    }
 }

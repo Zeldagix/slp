@@ -4,7 +4,7 @@ slp.tab.c slp.tab.h: slp.y
 lex.yy.c: slp.l slp.tab.h
 	flex slp.l
 
-slp: lex.yy.c slp.tab.c slp.tab.h
+slp: lex.yy.c slp.tab.c slp.tab.h node.h node.cc
 	g++ node.cc slp.tab.c lex.yy.c -o slp -ll
 
 .PHONE: clean

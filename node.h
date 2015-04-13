@@ -7,7 +7,7 @@ class ExpList;
 
 class Node {
 public:
-    std::string nodeType;
+    virtual void prettyPrint() {};
     virtual ~Node() {}
 };
 
@@ -19,6 +19,7 @@ public:
     Stm* stm1;
     Stm* stm2;
     CompoundStm(Stm* stm1, Stm* stm2);
+    void prettyPrint();
     ~CompoundStm();
 };
 
@@ -27,6 +28,7 @@ public:
     std::string id;
     Exp* exp;
     AssignStm(const std::string& id, Exp* exp);
+    void prettyPrint();
     ~AssignStm();
 };
 
@@ -34,6 +36,7 @@ class PrintStm : public Stm {
 public:
     ExpList* exps;
     PrintStm(ExpList* exps);
+    void prettyPrint();
     ~PrintStm();
 };
 
@@ -44,12 +47,14 @@ class IdExp : public Exp {
 public:
     std::string id;
     IdExp(const std::string& id);
+    void prettyPrint();
 };
 
 class NumExp : public Exp {
 public:
     long long num;
     NumExp(long long num);
+    void prettyPrint();
 };
 
 class OpExp : public Exp {
@@ -62,6 +67,7 @@ public:
     static const int Times = 3;
     static const int Div = 4;
     OpExp(Exp* left, int oper, Exp* right);
+    void prettyPrint();
     ~OpExp();
 };
 
@@ -70,6 +76,7 @@ public:
     Stm* stm;
     Exp* exp;
     EseqExp(Stm* stm, Exp* exp);
+    void prettyPrint();
     ~EseqExp();
 };
 
@@ -81,6 +88,7 @@ public:
     ExpList* head;
     Exp* tail;
     PairExpList(ExpList* head, Exp* tail);
+    void prettyPrint();
     ~PairExpList();
 };
 
@@ -88,5 +96,6 @@ class LastExpList : public ExpList {
 public:
     Exp* head;
     LastExpList(Exp* head);
+    void prettyPrint();
     ~LastExpList();
 };
