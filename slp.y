@@ -7,7 +7,8 @@ extern "C" int yylex();
 extern "C" int yyparse();
 extern "C" FILE *yyin;
 
-Node *programRoot;
+Node* programRoot;
+Table* symbolTable = NULL;
 
 void yyerror(const char* s);
 %}
@@ -38,11 +39,15 @@ void yyerror(const char* s);
 program         :   statement { programRoot = $1; }
 
 statement       :   statement TSEMI statement { $$ = new CompoundStm($1, $3); }
-                |   TIDENTIFIER TASSIGN expression { $$ = new AssignStm(*$1, $3); delete $1; }
+                |   TIDENTIFIER TASSIGN expression {
+                        symbolTable = symbolInsert(symbolTable, *$1);
+                        $$ = new AssignStm(*$1, $3); delete $1; }
                 |   TPRINT TLPAREN expressionList TRPAREN { $$ = new PrintStm($3); }
                 ;
 
-expression      :   TIDENTIFIER { $$ = new IdExp(*$1); delete $1; }
+expression      :   TIDENTIFIER {
+                        if (symbolLookup(symbolTable, *$1) == NULL) yyerror("Undeclared variable");
+                        $$ = new IdExp(*$1); delete $1; }
                 |   TINTEGER { $$ = new NumExp(atol($1->c_str())); delete $1; }
                 |   expression TPLUS expression { $$ = new OpExp($1, OpExp::Plus, $3); }
                 |   expression TMINUS expression { $$ = new OpExp($1, OpExp::Minus, $3); }

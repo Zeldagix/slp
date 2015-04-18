@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include "table.h"
 
 class Stm;
 class Exp;
@@ -8,7 +9,7 @@ class ExpList;
 class Node {
 public:
     virtual void prettyPrint() {};
-    virtual ~Node() {}
+    virtual ~Node() {};
 };
 
 class Stm : public Node {
