@@ -80,6 +80,7 @@ int main(int, char** argv) {
     std::cout << std::endl;
 
     delete programRoot;
+    delete scopeStack;
 
 }
 
