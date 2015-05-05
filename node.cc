@@ -9,6 +9,11 @@ void CompoundStm::prettyPrint() {
   stm2->prettyPrint();
 }
 
+void CompoundStm::codeGen() {
+  stm1->codeGen();
+  stm2->codeGen();
+}
+
 CompoundStm::~CompoundStm() { delete stm1; delete stm2; }
 
 AssignStm::AssignStm(const std::string& id, Exp* exp) : id(id), exp(exp) {}
@@ -16,6 +21,10 @@ AssignStm::AssignStm(const std::string& id, Exp* exp) : id(id), exp(exp) {}
 void AssignStm::prettyPrint() {
   cout << id << ":=";
   exp->prettyPrint();
+}
+
+void AssignStm::codeGen() {
+  exp->codeGen();
 }
 
 AssignStm::~AssignStm() { delete exp; }
@@ -28,6 +37,10 @@ void PrintStm::prettyPrint() {
   cout << ")";
 }
 
+void PrintStm::codeGen() {
+  exps->codeGen();
+}
+
 PrintStm::~PrintStm() { delete exps; }
 
 IdExp::IdExp(const std::string& id) : id(id) {}
@@ -36,10 +49,18 @@ void IdExp::prettyPrint() {
   cout << id;
 }
 
+void IdExp::codeGen() {
+  cout << "IdExp" << endl;
+}
+
 NumExp::NumExp(long long num) : num(num) {}
 
 void NumExp::prettyPrint() {
   cout << num;
+}
+
+void NumExp::codeGen() {
+  cout << "mov eax, " << num << endl;
 }
 
 OpExp::OpExp(Exp* left, int oper, Exp* right) : left(left), oper(oper), right(right) {}
@@ -65,6 +86,29 @@ void OpExp::prettyPrint() {
   right->prettyPrint();
 }
 
+void OpExp::codeGen() {
+  left->codeGen();
+  cout << "push eax" << endl;
+  right->codeGen();
+  cout << "pop edi" << endl;
+  switch(oper) {
+    case OpExp::Plus:
+      cout << "add eax, edi" << endl;
+      break;
+    case OpExp::Minus:
+      cout << "sub eax, edi" << endl;
+      break;
+    case OpExp::Times:
+      cout << "imul eax, edi" << endl;
+      break;
+    case OpExp::Div:
+      cout << "idiv eax, edi" << endl;
+      break;
+    default:
+      break;
+  }
+}
+
 OpExp::~OpExp() { delete left; delete right; }
 
 EseqExp::EseqExp(Stm* stm, Exp* exp) : stm(stm), exp(exp) {}
@@ -77,6 +121,11 @@ void EseqExp::prettyPrint() {
   cout << ")";
 }
 
+void EseqExp::codeGen() {
+  stm->codeGen();
+  exp->codeGen();
+}
+
 EseqExp::~EseqExp() { delete stm; delete exp; }
 
 PairExpList::PairExpList(ExpList* head, Exp* tail) : head(head), tail(tail) {}
@@ -87,12 +136,21 @@ void PairExpList::prettyPrint() {
   tail->prettyPrint();
 }
 
+void PairExpList::codeGen() {
+  head->codeGen();
+  tail->codeGen();
+}
+
 PairExpList::~PairExpList() { delete head; delete tail; }
 
 LastExpList::LastExpList(Exp* head) : head(head) {}
 
 void LastExpList::prettyPrint() {
   head->prettyPrint();
+}
+
+void LastExpList::codeGen() {
+  head->codeGen();
 }
 
 LastExpList::~LastExpList() { delete head; }

@@ -76,8 +76,7 @@ int main(int, char** argv) {
 
     fclose(yyin);
 
-    programRoot->prettyPrint();
-    std::cout << std::endl;
+    programRoot->codeGen();
 
     delete programRoot;
     delete scopeStack;
