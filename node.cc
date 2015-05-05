@@ -96,13 +96,14 @@ void OpExp::codeGen() {
       cout << "add eax, edi" << endl;
       break;
     case OpExp::Minus:
-      cout << "sub eax, edi" << endl;
+      cout << "sub edi, eax" << endl;
       break;
     case OpExp::Times:
       cout << "imul eax, edi" << endl;
       break;
     case OpExp::Div:
-      cout << "idiv eax, edi" << endl;
+      cout << "xchg eax, edi" << endl;
+      cout << "idiv edi" << endl;
       break;
     default:
       break;
