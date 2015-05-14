@@ -11,7 +11,7 @@ class ExpList;
 
 class Node {
 public:
-    static Scope* memOffsetStack;
+    static Scope* scopeStack;
     virtual void prettyPrint() {};
     virtual void codeGen() {};
     virtual ~Node();

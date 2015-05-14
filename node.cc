@@ -1,7 +1,7 @@
 #include "node.h"
 using namespace std;
 
-Scope* Node::memOffsetStack = new Scope(NULL, NULL);
+Scope* Node::scopeStack = new Scope(NULL, NULL);
 
 Node::~Node() { }
 
@@ -20,7 +20,9 @@ void CompoundStm::codeGen() {
 
 CompoundStm::~CompoundStm() { delete stm1; delete stm2; }
 
-AssignStm::AssignStm(const std::string& id, Exp* exp) : id(id), exp(exp) {}
+AssignStm::AssignStm(const std::string& id, Exp* exp) : id(id), exp(exp) {
+  symbolInsert(Node::scopeStack, id);
+}
 
 void AssignStm::prettyPrint() {
   cout << id << ":=";
@@ -29,7 +31,7 @@ void AssignStm::prettyPrint() {
 
 void AssignStm::codeGen() {
   exp->codeGen();
-  symbolInsert(Node::memOffsetStack, id);
+  symbolInsert(Node::scopeStack, id);
   cout << "push eax" << endl;
   cout << endl;
 }
@@ -57,7 +59,7 @@ void IdExp::prettyPrint() {
 }
 
 void IdExp::codeGen() {
-  cout << "mov eax, [ebp - " << getOffset(Node::memOffsetStack, id) << "]" << endl;
+  cout << "mov eax, [ebp - " << getOffset(Node::scopeStack, id) << "]" << endl;
 }
 
 NumExp::NumExp(long long num) : num(num) {}
