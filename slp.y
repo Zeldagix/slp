@@ -81,6 +81,7 @@ int main(int, char** argv) {
     delete programRoot;
     delete scopeStack;
 
+
 }
 
 void yyerror(const char *s) {

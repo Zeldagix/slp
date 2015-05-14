@@ -1,3 +1,7 @@
+#ifndef NODE_H
+#define NODE_H
+
+#include "scope.h"
 #include <iostream>
 #include <vector>
 
@@ -7,9 +11,10 @@ class ExpList;
 
 class Node {
 public:
+    static Scope* memOffsetStack;
     virtual void prettyPrint() {};
     virtual void codeGen() {};
-    virtual ~Node() {};
+    virtual ~Node();
 };
 
 class Stm : public Node {
@@ -109,3 +114,5 @@ public:
     void codeGen();
     ~LastExpList();
 };
+
+#endif
