@@ -14,7 +14,7 @@ public:
     static Scope* scopeStack;
     virtual void prettyPrint() {};
     virtual void codeGen() {};
-    virtual ~Node();
+    virtual ~Node() {};
 };
 
 class Stm : public Node {

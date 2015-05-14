@@ -3,8 +3,6 @@ using namespace std;
 
 Scope* Node::scopeStack = new Scope(NULL, NULL);
 
-Node::~Node() { }
-
 CompoundStm::CompoundStm(Stm* stm1, Stm* stm2) : stm1(stm1), stm2(stm2) {}
 
 void CompoundStm::prettyPrint() {
