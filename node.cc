@@ -148,6 +148,8 @@ void PairExpList::prettyPrint() {
 void PairExpList::codeGen() {
   head->codeGen();
   tail->codeGen();
+  cout << "mov edi, 0" << endl;
+  cout << "call loophere" << endl;
 }
 
 PairExpList::~PairExpList() { delete head; delete tail; }
@@ -160,6 +162,8 @@ void LastExpList::prettyPrint() {
 
 void LastExpList::codeGen() {
   head->codeGen();
+  cout << "mov edi, 0" << endl;
+  cout << "call loophere" << endl;
 }
 
 LastExpList::~LastExpList() { delete head; }
