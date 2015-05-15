@@ -7,13 +7,14 @@
 
 class Stm;
 class Exp;
+class Cond;
 class ExpList;
 
 class Node {
 public:
     static Scope* scopeStack;
-    virtual void prettyPrint() {};
-    virtual void codeGen() {};
+    virtual void prettyPrint() = 0;
+    virtual void codeGen() = 0;
     virtual ~Node() {};
 };
 
@@ -47,6 +48,16 @@ public:
     void prettyPrint();
     void codeGen();
     ~PrintStm();
+};
+
+class WhileStm : public Stm {
+public:
+    Cond* cond;
+    Stm* stm;
+    WhileStm(Cond* cond, Stm* stm);
+    void prettyPrint();
+    void codeGen();
+    ~WhileStm();
 };
 
 class Exp : public Node {
@@ -91,6 +102,23 @@ public:
     void prettyPrint();
     void codeGen();
     ~EseqExp();
+};
+
+class Cond : public Node {
+public:
+    Exp* left;
+    Exp* right;
+    int oper;
+    static const int Greater = 1;
+    static const int GreaterEqual = 2;
+    static const int Less = 3;
+    static const int LessEqual = 4;
+    static const int Equal = 5;
+    static const int NotEqual = 6;
+    Cond(Exp* left, int oper, Exp* right);
+    void prettyPrint();
+    void codeGen();
+    ~Cond();
 };
 
 class ExpList : public Node {

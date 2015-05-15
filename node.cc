@@ -7,7 +7,7 @@ CompoundStm::CompoundStm(Stm* stm1, Stm* stm2) : stm1(stm1), stm2(stm2) {}
 
 void CompoundStm::prettyPrint() {
   stm1->prettyPrint();
-  cout << ";";
+  cout << ";" << endl;
   stm2->prettyPrint();
 }
 
@@ -23,7 +23,7 @@ AssignStm::AssignStm(const std::string& id, Exp* exp) : id(id), exp(exp) {
 }
 
 void AssignStm::prettyPrint() {
-  cout << id << ":=";
+  cout << id << " := ";
   exp->prettyPrint();
 }
 
@@ -54,6 +54,23 @@ void PrintStm::codeGen() {
 
 PrintStm::~PrintStm() { delete exps; }
 
+WhileStm::WhileStm(Cond* cond, Stm* stm) : cond(cond), stm(stm) {}
+
+void WhileStm::prettyPrint() {
+  cout << "while (";
+  cond->prettyPrint();
+  cout << ") {" << endl;
+  stm->prettyPrint();
+  cout << endl << "}";
+}
+
+void WhileStm::codeGen() {
+  cond->codeGen();
+  stm->codeGen();
+}
+
+WhileStm::~WhileStm() { delete cond; delete stm; }
+
 IdExp::IdExp(const std::string& id) : id(id) {}
 
 void IdExp::prettyPrint() {
@@ -80,16 +97,16 @@ void OpExp::prettyPrint() {
   left->prettyPrint();
   switch(oper) {
     case OpExp::Plus:
-      cout << "+";
+      cout << " + ";
       break;
     case OpExp::Minus:
-      cout << "-";
+      cout << " - ";
       break;
     case OpExp::Times:
-      cout << "*";
+      cout << " * ";
       break;
     case OpExp::Div:
-      cout << "/";
+      cout << " / ";
       break;
     default:
       break;
@@ -140,6 +157,21 @@ void EseqExp::codeGen() {
 }
 
 EseqExp::~EseqExp() { delete stm; delete exp; }
+
+Cond::Cond(Exp* left, int oper, Exp* right) : left(left), oper(oper), right(right) {}
+
+void Cond::prettyPrint() {
+  left->prettyPrint();
+  cout << " OPER ";
+  right->prettyPrint();
+}
+
+void Cond::codeGen() {
+  left->codeGen();
+  right->codeGen();
+}
+
+Cond::~Cond() { delete left; delete right; }
 
 PairExpList::PairExpList(ExpList* head, Exp* tail) : head(head), tail(tail) {}
 

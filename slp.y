@@ -17,6 +17,7 @@ void yyerror(const char* s);
 %union {
     Node *node;
     Exp *expr;
+    Cond *cond;
     Stm *stmt;
     ExpList *exprlist;
     std::string *string;
@@ -24,26 +25,37 @@ void yyerror(const char* s);
 }
 
 %token <string> TIDENTIFIER TINTEGER
-%token <token> TASSIGN TPRINT
-%token <token> TLPAREN TRPAREN TCOMMA TSEMI
+%token <token> TASSIGN TPRINT TWHILE
+%token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TSEMI
 %token <token> TPLUS TMINUS TMUL TDIV
+%token <token> TGREATER TGREATEREQ TLESS TLESSEQ TEQUAL TNOTEQUAL
 
+%type <cond> conditional
 %type <expr> expression
-%type <stmt> program statement
+%type <stmt> statements statement loop
 %type <exprlist> expressionList
+%type <node> program
 
 %left TPLUS TMINUS
 %left TMUL TDIV
 
 %%
 
-program         :   statement { programRoot = $1; }
+program         :   statements { programRoot = $1; }
 
-statement       :   statement TSEMI statement { $$ = new CompoundStm($1, $3); }
-                |   TIDENTIFIER TASSIGN expression {
+statements      :   statements TSEMI statement { $$ = new CompoundStm($1, $3); }
+                |   statement {}
+                ;
+
+statement       :   TIDENTIFIER TASSIGN expression {
                         $$ = new AssignStm(*$1, $3); delete $1; }
                 |   TPRINT TLPAREN expressionList TRPAREN { $$ = new PrintStm($3); }
+                |   loop {}
+                |   loop statement {}
                 ;
+
+loop            :   TWHILE TLPAREN conditional TRPAREN TLBRACE statements TRBRACE {
+                        $$ = new WhileStm($3, $6); }
 
 expression      :   TIDENTIFIER {
                         if (symbolLookup(Node::scopeStack, *$1) == NULL) yyerror("Undeclared variable");
@@ -58,6 +70,14 @@ expression      :   TIDENTIFIER {
 
 expressionList  :   expression { $$ = new LastExpList($1); }
                 |   expressionList TCOMMA expression { $$ = new PairExpList($1, $3); }
+                ;
+
+conditional     :   expression TGREATER expression { $$ = new Cond($1, Cond::Greater, $3); }
+                |   expression TGREATEREQ expression { $$ = new Cond($1, Cond::GreaterEqual, $3); }
+                |   expression TLESS expression { $$ = new Cond($1, Cond::Less, $3); }
+                |   expression TLESSEQ expression { $$ = new Cond($1, Cond::LessEqual, $3); }
+                |   expression TEQUAL expression { $$ = new Cond($1, Cond::Equal, $3); }
+                |   expression TNOTEQUAL expression { $$ = new Cond($1, Cond::NotEqual, $3); }
                 ;
 
 %%
@@ -75,9 +95,10 @@ int main(int, char** argv) {
 
     fclose(yyin);
 
-    emitBoilerplatePre();
-    programRoot->codeGen();
-    emitBoilerplatePost();
+    programRoot->prettyPrint();
+    //emitBoilerplatePre();
+    //programRoot->codeGen();
+    //emitBoilerplatePost();
 
     delete Node::scopeStack;
     delete programRoot;
