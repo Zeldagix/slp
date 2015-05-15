@@ -10,6 +10,7 @@ Table::~Table() {
     delete next;
   }
 }
+
 Table* symbolInsert(Table* symbolTable, string identifier) {
   if (symbolTable == NULL) {
     return new Table(identifier, 4, symbolTable);

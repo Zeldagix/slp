@@ -3,6 +3,7 @@
 #include <iostream>
 #include "node.h"
 #include "scope.h"
+#include "codegen.h"
 
 extern "C" int yylex();
 extern "C" int yyparse();
@@ -74,8 +75,9 @@ int main(int, char** argv) {
 
     fclose(yyin);
 
+    emitBoilerplatePre();
     programRoot->codeGen();
-
+    emitBoilerplatePost();
 
     delete Node::scopeStack;
     delete programRoot;

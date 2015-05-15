@@ -1,6 +1,9 @@
 #ifndef SCOPE_H
 #define SCOPE_H
 
+// Define the Scope Stack data structure
+// A Scope Stack is a stack of Symbol Tables
+
 #include "table.h"
 
 class Scope {

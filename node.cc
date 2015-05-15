@@ -29,8 +29,12 @@ void AssignStm::prettyPrint() {
 
 void AssignStm::codeGen() {
   exp->codeGen();
+  // Insert the newly defined variable into the symbol table
+  // The symbol table does not keep track of the variable's value
+  // It just keeps track of the variable's position within the stack frame
+  // i.e. the offset from ebp in memory
   symbolInsert(Node::scopeStack, id);
-  cout << "push eax" << endl;
+  cout << "    push eax" << endl;
   cout << endl;
 }
 
@@ -57,7 +61,7 @@ void IdExp::prettyPrint() {
 }
 
 void IdExp::codeGen() {
-  cout << "mov eax, [ebp - " << getOffset(Node::scopeStack, id) << "]" << endl;
+  cout << "    mov eax, [ebp - " << getOffset(Node::scopeStack, id) << "]" << endl;
 }
 
 NumExp::NumExp(long long num) : num(num) {}
@@ -67,7 +71,7 @@ void NumExp::prettyPrint() {
 }
 
 void NumExp::codeGen() {
-  cout << "mov eax, " << num << endl;
+  cout << "    mov eax, " << num << endl;
 }
 
 OpExp::OpExp(Exp* left, int oper, Exp* right) : left(left), oper(oper), right(right) {}
@@ -95,23 +99,23 @@ void OpExp::prettyPrint() {
 
 void OpExp::codeGen() {
   left->codeGen();
-  cout << "push eax" << endl;
+  cout << "    push eax" << endl;
   right->codeGen();
-  cout << "pop edi" << endl;
+  cout << "    pop edi" << endl;
   switch(oper) {
     case OpExp::Plus:
-      cout << "add eax, edi" << endl;
+      cout << "    add eax, edi" << endl;
       break;
     case OpExp::Minus:
-      cout << "sub edi, eax" << endl;
-      cout << "xchg eax, edi" << endl;
+      cout << "    sub edi, eax" << endl;
+      cout << "    xchg eax, edi" << endl;
       break;
     case OpExp::Times:
-      cout << "imul eax, edi" << endl;
+      cout << "    imul eax, edi" << endl;
       break;
     case OpExp::Div:
-      cout << "xchg eax, edi" << endl;
-      cout << "idiv edi" << endl;
+      cout << "    xchg eax, edi" << endl;
+      cout << "    idiv edi" << endl;
       break;
     default:
       break;
@@ -148,8 +152,8 @@ void PairExpList::prettyPrint() {
 void PairExpList::codeGen() {
   head->codeGen();
   tail->codeGen();
-  cout << "mov edi, 0" << endl;
-  cout << "call loophere" << endl;
+  cout << "    mov edi, 0" << endl;
+  cout << "    call print_eax" << endl;
 }
 
 PairExpList::~PairExpList() { delete head; delete tail; }
@@ -162,8 +166,8 @@ void LastExpList::prettyPrint() {
 
 void LastExpList::codeGen() {
   head->codeGen();
-  cout << "mov edi, 0" << endl;
-  cout << "call loophere" << endl;
+  cout << "    mov edi, 0" << endl;
+  cout << "    call print_eax" << endl;
 }
 
 LastExpList::~LastExpList() { delete head; }
