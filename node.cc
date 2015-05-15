@@ -2,12 +2,13 @@
 using namespace std;
 
 Scope* Node::scopeStack = new Scope(NULL, NULL);
+int Node::indentLevel = 0;
+
 
 CompoundStm::CompoundStm(Stm* stm1, Stm* stm2) : stm1(stm1), stm2(stm2) {}
 
 void CompoundStm::prettyPrint() {
   stm1->prettyPrint();
-  cout << ";" << endl;
   stm2->prettyPrint();
 }
 
@@ -23,8 +24,10 @@ AssignStm::AssignStm(const std::string& id, Exp* exp) : id(id), exp(exp) {
 }
 
 void AssignStm::prettyPrint() {
+  printLeadingSpace();
   cout << id << " := ";
   exp->prettyPrint();
+  cout << ";" << endl;
 }
 
 void AssignStm::codeGen() {
@@ -43,9 +46,10 @@ AssignStm::~AssignStm() { delete exp; }
 PrintStm::PrintStm(ExpList* exps) : exps(exps) {}
 
 void PrintStm::prettyPrint() {
+  printLeadingSpace();
   cout << "print(";
   exps->prettyPrint();
-  cout << ")";
+  cout << ");" << endl;;
 }
 
 void PrintStm::codeGen() {
@@ -57,11 +61,15 @@ PrintStm::~PrintStm() { delete exps; }
 WhileStm::WhileStm(Cond* cond, Stm* stm) : cond(cond), stm(stm) {}
 
 void WhileStm::prettyPrint() {
+  printLeadingSpace();
   cout << "while (";
   cond->prettyPrint();
   cout << ") {" << endl;
+  Node::indentLevel += 4;
   stm->prettyPrint();
-  cout << endl << "}";
+  Node::indentLevel -= 4;
+  printLeadingSpace();
+  cout << "}" << endl;
 }
 
 void WhileStm::codeGen() {
@@ -141,28 +149,30 @@ void OpExp::codeGen() {
 
 OpExp::~OpExp() { delete left; delete right; }
 
-EseqExp::EseqExp(Stm* stm, Exp* exp) : stm(stm), exp(exp) {}
-
-void EseqExp::prettyPrint() {
-  cout << "(";
-  stm->prettyPrint();
-  cout << ",";
-  exp->prettyPrint();
-  cout << ")";
-}
-
-void EseqExp::codeGen() {
-  stm->codeGen();
-  exp->codeGen();
-}
-
-EseqExp::~EseqExp() { delete stm; delete exp; }
-
 Cond::Cond(Exp* left, int oper, Exp* right) : left(left), oper(oper), right(right) {}
 
 void Cond::prettyPrint() {
   left->prettyPrint();
-  cout << " OPER ";
+  switch(oper) {
+    case Cond::Greater:
+      cout << " > ";
+      break;
+    case Cond::GreaterEqual:
+      cout << " >= ";
+      break;
+    case Cond::Less:
+      cout << " > ";
+      break;
+    case Cond::LessEqual:
+      cout << " <= ";
+      break;
+    case Cond::Equal:
+      cout << " == ";
+      break;
+    case Cond::NotEqual:
+      cout << " != ";
+      break;
+  }
   right->prettyPrint();
 }
 
@@ -177,7 +187,7 @@ PairExpList::PairExpList(ExpList* head, Exp* tail) : head(head), tail(tail) {}
 
 void PairExpList::prettyPrint() {
   head->prettyPrint();
-  cout << ",";
+  cout << ", ";
   tail->prettyPrint();
 }
 
@@ -203,3 +213,9 @@ void LastExpList::codeGen() {
 }
 
 LastExpList::~LastExpList() { delete head; }
+
+void printLeadingSpace() {
+    for (int i=0; i<Node::indentLevel; i++) {
+        std::cout << " ";
+    }
+}

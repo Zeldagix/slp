@@ -13,6 +13,7 @@ class ExpList;
 class Node {
 public:
     static Scope* scopeStack;
+    static int indentLevel;
     virtual void prettyPrint() = 0;
     virtual void codeGen() = 0;
     virtual ~Node() {};
@@ -94,16 +95,6 @@ public:
     ~OpExp();
 };
 
-class EseqExp : public Exp {
-public:
-    Stm* stm;
-    Exp* exp;
-    EseqExp(Stm* stm, Exp* exp);
-    void prettyPrint();
-    void codeGen();
-    ~EseqExp();
-};
-
 class Cond : public Node {
 public:
     Exp* left;
@@ -142,5 +133,7 @@ public:
     void codeGen();
     ~LastExpList();
 };
+
+void printLeadingSpace();
 
 #endif

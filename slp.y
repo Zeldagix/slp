@@ -43,15 +43,14 @@ void yyerror(const char* s);
 
 program         :   statements { programRoot = $1; }
 
-statements      :   statements TSEMI statement { $$ = new CompoundStm($1, $3); }
+statements      :   statements statement { $$ = new CompoundStm($1, $2); }
                 |   statement {}
                 ;
 
-statement       :   TIDENTIFIER TASSIGN expression {
+statement       :   TIDENTIFIER TASSIGN expression TSEMI {
                         $$ = new AssignStm(*$1, $3); delete $1; }
-                |   TPRINT TLPAREN expressionList TRPAREN { $$ = new PrintStm($3); }
+                |   TPRINT TLPAREN expressionList TRPAREN TSEMI { $$ = new PrintStm($3); }
                 |   loop {}
-                |   loop statement {}
                 ;
 
 loop            :   TWHILE TLPAREN conditional TRPAREN TLBRACE statements TRBRACE {
@@ -65,7 +64,6 @@ expression      :   TIDENTIFIER {
                 |   expression TMINUS expression { $$ = new OpExp($1, OpExp::Minus, $3); }
                 |   expression TMUL expression { $$ = new OpExp($1, OpExp::Times, $3); }
                 |   expression TDIV expression { $$ = new OpExp($1, OpExp::Div, $3); }
-                |   TLPAREN statement TCOMMA expression TRPAREN { $$ = new EseqExp($2, $4); }
                 ;
 
 expressionList  :   expression { $$ = new LastExpList($1); }
@@ -95,10 +93,10 @@ int main(int, char** argv) {
 
     fclose(yyin);
 
-    programRoot->prettyPrint();
-    //emitBoilerplatePre();
-    //programRoot->codeGen();
-    //emitBoilerplatePost();
+    //programRoot->prettyPrint();
+    emitBoilerplatePre();
+    programRoot->codeGen();
+    emitBoilerplatePost();
 
     delete Node::scopeStack;
     delete programRoot;
