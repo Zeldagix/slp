@@ -5,12 +5,12 @@ The purpose of this project is to better understand code generation and compiler
 
 Sample interaction:
 ````
-> cat examples/02_slp.in
-a := 5 + 3; b := (print(a, a - 1), 10 * a); print(b)
-> make slp
-> ./slp examples/02_slp.in > 02_slp.asm
-> nasm -f elf 02_slp.asm; ld -m elf_i386 -s -o 02_slp 02_slp.o
-> ./02_slp
+make slp
+./slp examples/02_slp.in > 02_slp.asm
+nasm -f elf 02_slp.asm; ld -m elf_i386 -s -o 02_slp 02_slp.o
+./02_slp
+Produces:
+````
 8
 7
 80
