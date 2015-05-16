@@ -33,7 +33,7 @@ void emitBoilerplatePost() {
 	cout << "    int 0x80" << endl;
 	cout << endl;
 	cout << "print_eax:" << endl;
-	cout << "    mov esi, esp" << endl;
+	cout << "    mov edi, 0" << endl;
 	cout << endl;
 	cout << "first_loop:" << endl;
 	cout << "    mov edx, 0" << endl;
