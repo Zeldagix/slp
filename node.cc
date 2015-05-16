@@ -3,6 +3,7 @@ using namespace std;
 
 Scope* Node::scopeStack = new Scope(NULL, NULL);
 int Node::indentLevel = 0;
+int Node::whileStmCounter = 0;
 
 
 CompoundStm::CompoundStm(Stm* stm1, Stm* stm2) : stm1(stm1), stm2(stm2) {}
@@ -36,8 +37,9 @@ void AssignStm::codeGen() {
   // The symbol table does not keep track of the variable's value
   // It just keeps track of the variable's position within the stack frame
   // i.e. the offset from ebp in memory
-  symbolInsert(Node::scopeStack, id);
-  cout << "    push eax" << endl;
+  Table* ref = symbolLookup(Node::scopeStack, id);
+  if (ref == NULL) symbolInsert(Node::scopeStack, id);
+  cout << "    mov [ebp - " << getOffset(Node::scopeStack, id) << "], eax" << endl;
   cout << endl;
 }
 
@@ -58,7 +60,10 @@ void PrintStm::codeGen() {
 
 PrintStm::~PrintStm() { delete exps; }
 
-WhileStm::WhileStm(Cond* cond, Stm* stm) : cond(cond), stm(stm) {}
+WhileStm::WhileStm(Cond* cond, Stm* stm) : cond(cond), stm(stm) {
+  whileStmCounter = Node::whileStmCounter;
+  Node::whileStmCounter++;
+}
 
 void WhileStm::prettyPrint() {
   printLeadingSpace();
@@ -73,8 +78,33 @@ void WhileStm::prettyPrint() {
 }
 
 void WhileStm::codeGen() {
+  cout << "while" << whileStmCounter << ":" << endl;
   cond->codeGen();
+  switch(cond->oper) {
+    case Cond::Greater:
+      cout << "    jng skip_while" << whileStmCounter << endl;
+      break;
+    case Cond::GreaterEqual:
+      cout << "    jnge skip_while" << whileStmCounter << endl;
+      break;
+    case Cond::Less:
+      cout << "    jnl skip_while" << whileStmCounter << endl;
+      break;
+    case Cond::LessEqual:
+      cout << "    jnle skip_while" << whileStmCounter << endl;
+      break;
+    case Cond::Equal:
+      cout << "    jne skip_while" << whileStmCounter << endl;
+      break;
+    case Cond::NotEqual:
+      cout << "    je skip_while" << whileStmCounter << endl;
+      break;
+  }
+  cout << endl;
   stm->codeGen();
+  cout << "    jmp while" << whileStmCounter << endl;
+  cout << endl;
+  cout << "skip_while" << whileStmCounter << ":" << endl;
 }
 
 WhileStm::~WhileStm() { delete cond; delete stm; }
@@ -161,7 +191,7 @@ void Cond::prettyPrint() {
       cout << " >= ";
       break;
     case Cond::Less:
-      cout << " > ";
+      cout << " < ";
       break;
     case Cond::LessEqual:
       cout << " <= ";
@@ -178,7 +208,10 @@ void Cond::prettyPrint() {
 
 void Cond::codeGen() {
   left->codeGen();
+  cout << "    push eax" << endl;
   right->codeGen();
+  cout << "    pop edi" << endl;
+  cout << "    cmp edi, eax" << endl;
 }
 
 Cond::~Cond() { delete left; delete right; }
@@ -194,7 +227,6 @@ void PairExpList::prettyPrint() {
 void PairExpList::codeGen() {
   head->codeGen();
   tail->codeGen();
-  cout << "    mov edi, 0" << endl;
   cout << "    call print_eax" << endl;
 }
 
@@ -208,7 +240,6 @@ void LastExpList::prettyPrint() {
 
 void LastExpList::codeGen() {
   head->codeGen();
-  cout << "    mov edi, 0" << endl;
   cout << "    call print_eax" << endl;
 }
 

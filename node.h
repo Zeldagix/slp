@@ -13,7 +13,8 @@ class ExpList;
 class Node {
 public:
     static Scope* scopeStack;
-    static int indentLevel;
+    static int indentLevel; //for printing
+    static int whileStmCounter;
     virtual void prettyPrint() = 0;
     virtual void codeGen() = 0;
     virtual ~Node() {};
@@ -55,6 +56,7 @@ class WhileStm : public Stm {
 public:
     Cond* cond;
     Stm* stm;
+    int whileStmCounter;
     WhileStm(Cond* cond, Stm* stm);
     void prettyPrint();
     void codeGen();

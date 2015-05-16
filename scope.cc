@@ -31,10 +31,7 @@ Scope* pushScope(Scope* currentScope) {
 }
 
 Scope* popScope(Scope* currentScope) {
-  Scope* temp = currentScope->next;
-  currentScope->next = NULL;
-  delete currentScope->table;
-  delete currentScope;
-  return temp;
+  //delete currentScope->table;
+  return currentScope->next;
 }
 

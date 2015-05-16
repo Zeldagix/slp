@@ -1,4 +1,5 @@
 #include <iostream>
+#include "node.h"
 using namespace std;
 
 // esp holds the stack pointer
@@ -19,6 +20,8 @@ void emitBoilerplatePre() {
 	cout << endl;
 	cout << "_start:" << endl;
 	cout << "    mov ebp, esp" << endl;
+	int offset = Node::scopeStack->table->memOffset;
+	cout << "    sub esp, " << offset << endl;
 	cout << endl;
 }
 
@@ -30,7 +33,7 @@ void emitBoilerplatePost() {
 	cout << "    int 0x80" << endl;
 	cout << endl;
 	cout << "print_eax:" << endl;
-	cout << "    mov edi, 0" << endl;
+	cout << "    mov esi, esp" << endl;
 	cout << endl;
 	cout << "first_loop:" << endl;
 	cout << "    mov edx, 0" << endl;
