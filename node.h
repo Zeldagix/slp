@@ -1,9 +1,11 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include "scope.h"
+#include "table.h"
+#include "functiontable.h"
 #include <iostream>
-#include <vector>
+
+class FunctionTable;
 
 class Stm;
 class Exp;
@@ -12,7 +14,8 @@ class ExpList;
 
 class Node {
 public:
-    static Scope* scopeStack;
+    static Table* symbolTable;
+    static FunctionTable* fnTable;
     static int indentLevel; //for printing
     static int whileStmCounter;
     virtual void prettyPrint() = 0;

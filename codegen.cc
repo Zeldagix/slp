@@ -1,5 +1,4 @@
-#include <iostream>
-#include "node.h"
+#include "codegen.h"
 using namespace std;
 
 // esp holds the stack pointer
@@ -20,7 +19,7 @@ void emitBoilerplatePre() {
 	cout << endl;
 	cout << "_start:" << endl;
 	cout << "    mov ebp, esp" << endl;
-	int offset = Node::scopeStack->table->memOffset;
+	int offset = Node::symbolTable->memOffset;
 	cout << "    sub esp, " << offset << endl;
 	cout << endl;
 }

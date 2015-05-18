@@ -1,6 +1,9 @@
 #ifndef CODEGEN_H
 #define CODEGEN_H
 
+#include "node.h"
+#include <iostream>
+
 // Define functions to write boilerplate ASM code to
 // standard output. The boilerplate is Linux i386-specific
 // and does the following:

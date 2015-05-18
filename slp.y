@@ -1,8 +1,6 @@
 %{
 #include <cstdio>
 #include <iostream>
-#include "node.h"
-#include "scope.h"
 #include "codegen.h"
 
 extern "C" int yylex();
@@ -32,7 +30,7 @@ void yyerror(const char* s);
 
 %type <cond> conditional
 %type <expr> expression
-%type <stmt> statements statement loop fn_def
+%type <stmt> statements statement loop fn_def fn_call
 %type <exprlist> expressionList
 %type <node> program
 
@@ -52,13 +50,18 @@ statement       :   TIDENTIFIER TASSIGN expression TSEMI {
                 |   TPRINT TLPAREN expressionList TRPAREN TSEMI { $$ = new PrintStm($3); }
                 |   loop {}
                 |   fn_def {}
+                |   fn_call {}
                 ;
 
 loop            :   TWHILE TLPAREN conditional TRPAREN TLBRACE statements TRBRACE {
                         $$ = new WhileStm($3, $6); }
 
 fn_def          :   TDEF TIDENTIFIER TLPAREN TRPAREN TLBRACE statements TRBRACE {
-                        $$ = new FunctionDefinition(*$2, $6); }
+                        $$ = new FunctionDefinition(*$2, $6);
+                        Node::fnTable = functionInsert(Node::fnTable, *$2, $$, NULL);
+                        delete $2; }
+
+fn_call         :   TIDENTIFIER TLPAREN TRPAREN TSEMI {}
 
 expression      :   TIDENTIFIER { $$ = new IdExp(*$1); delete $1; }
                 |   TINTEGER { $$ = new NumExp(atol($1->c_str())); delete $1; }
@@ -107,7 +110,8 @@ int main(int, char** argv) {
     programRoot->codeGen();
     emitBoilerplatePost();
 
-    delete Node::scopeStack;
+    delete Node::symbolTable;
+    delete Node::fnTable;
     delete programRoot;
 
 

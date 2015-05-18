@@ -1,7 +1,8 @@
 #include "node.h"
 using namespace std;
 
-Scope* Node::scopeStack = new Scope(NULL, NULL);
+Table* Node::symbolTable = NULL;
+FunctionTable* Node::fnTable = NULL;
 int Node::indentLevel = 0;
 int Node::whileStmCounter = 0;
 
@@ -40,13 +41,13 @@ void AssignStm::codeGen() {
   // The symbol table does not keep track of the variable's value
   // It just keeps track of the variable's position within the stack frame
   // i.e. the offset from ebp in memory
-  cout << "    mov [ebp - " << getOffset(Node::scopeStack, id) << "], eax" << endl;
+  cout << "    mov [ebp - " << symbolLookup(Node::symbolTable, id) << "], eax" << endl;
   cout << endl;
 }
 
 void AssignStm::buildSymbolTable() {
   exp->buildSymbolTable();
-  symbolInsert(Node::scopeStack, id);
+  Node::symbolTable = symbolInsert(Node::symbolTable, id);
 }
 
 AssignStm::~AssignStm() { delete exp; }
@@ -128,13 +129,16 @@ FunctionDefinition::FunctionDefinition(const std::string& id, Stm* stm) : id(id)
 
 void FunctionDefinition::prettyPrint() {}
 
-void FunctionDefinition::codeGen() {}
+void FunctionDefinition::codeGen() {
+  stm->codeGen();
+}
 
 void FunctionDefinition::buildSymbolTable() {
-  Node::scopeStack = pushScope(Node::scopeStack);
+  Table* temp = Node::symbolTable;
+  Node::symbolTable = NULL;
   stm->buildSymbolTable();
-  dumpScope(Node::scopeStack);
-  Node::scopeStack = popScope(Node::scopeStack);
+  injectSymbolTable(Node::fnTable, id, Node::symbolTable);
+  Node::symbolTable = temp;
 }
 
 FunctionDefinition::~FunctionDefinition() { delete stm; }
@@ -146,11 +150,11 @@ void IdExp::prettyPrint() {
 }
 
 void IdExp::codeGen() {
-  cout << "    mov eax, [ebp - " << getOffset(Node::scopeStack, id) << "]" << endl;
+  cout << "    mov eax, [ebp - " << symbolLookup(Node::symbolTable, id) << "]" << endl;
 }
 
 void IdExp::buildSymbolTable() {
-  if (symbolLookup(Node::scopeStack, id) == NULL) throw(id);
+  if (symbolLookup(Node::symbolTable, id) == 0) throw(id);
 }
 
 NumExp::NumExp(long long num) : num(num) {}
