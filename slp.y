@@ -25,14 +25,14 @@ void yyerror(const char* s);
 }
 
 %token <string> TIDENTIFIER TINTEGER
-%token <token> TASSIGN TPRINT TWHILE
+%token <token> TASSIGN TPRINT TWHILE TDEF
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TSEMI
 %token <token> TPLUS TMINUS TMUL TDIV
 %token <token> TGREATER TGREATEREQ TLESS TLESSEQ TEQUAL TNOTEQUAL
 
 %type <cond> conditional
 %type <expr> expression
-%type <stmt> statements statement loop
+%type <stmt> statements statement loop fn_def
 %type <exprlist> expressionList
 %type <node> program
 
@@ -51,14 +51,16 @@ statement       :   TIDENTIFIER TASSIGN expression TSEMI {
                         $$ = new AssignStm(*$1, $3); delete $1; }
                 |   TPRINT TLPAREN expressionList TRPAREN TSEMI { $$ = new PrintStm($3); }
                 |   loop {}
+                |   fn_def {}
                 ;
 
 loop            :   TWHILE TLPAREN conditional TRPAREN TLBRACE statements TRBRACE {
                         $$ = new WhileStm($3, $6); }
 
-expression      :   TIDENTIFIER {
-                        if (symbolLookup(Node::scopeStack, *$1) == NULL) yyerror("Undeclared variable");
-                        $$ = new IdExp(*$1); delete $1; }
+fn_def          :   TDEF TIDENTIFIER TLPAREN TRPAREN TLBRACE statements TRBRACE {
+                        $$ = new FunctionDefinition(*$2, $6); }
+
+expression      :   TIDENTIFIER { $$ = new IdExp(*$1); delete $1; }
                 |   TINTEGER { $$ = new NumExp(atol($1->c_str())); delete $1; }
                 |   expression TPLUS expression { $$ = new OpExp($1, OpExp::Plus, $3); }
                 |   expression TMINUS expression { $$ = new OpExp($1, OpExp::Minus, $3); }
@@ -93,7 +95,14 @@ int main(int, char** argv) {
 
     fclose(yyin);
 
-    //programRoot->prettyPrint();
+    try {
+        programRoot->buildSymbolTable();
+    }
+    catch(std::string id) {
+        std::cout << "Error: uninitialized variable " << id << std::endl;
+        return -2;
+    }
+    
     emitBoilerplatePre();
     programRoot->codeGen();
     emitBoilerplatePost();

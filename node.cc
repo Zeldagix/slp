@@ -18,11 +18,14 @@ void CompoundStm::codeGen() {
   stm2->codeGen();
 }
 
+void CompoundStm::buildSymbolTable() {
+  stm1->buildSymbolTable();
+  stm2->buildSymbolTable();
+}
+
 CompoundStm::~CompoundStm() { delete stm1; delete stm2; }
 
-AssignStm::AssignStm(const std::string& id, Exp* exp) : id(id), exp(exp) {
-  symbolInsert(Node::scopeStack, id);
-}
+AssignStm::AssignStm(const std::string& id, Exp* exp) : id(id), exp(exp) {}
 
 void AssignStm::prettyPrint() {
   printLeadingSpace();
@@ -37,10 +40,13 @@ void AssignStm::codeGen() {
   // The symbol table does not keep track of the variable's value
   // It just keeps track of the variable's position within the stack frame
   // i.e. the offset from ebp in memory
-  Table* ref = symbolLookup(Node::scopeStack, id);
-  if (ref == NULL) symbolInsert(Node::scopeStack, id);
   cout << "    mov [ebp - " << getOffset(Node::scopeStack, id) << "], eax" << endl;
   cout << endl;
+}
+
+void AssignStm::buildSymbolTable() {
+  exp->buildSymbolTable();
+  symbolInsert(Node::scopeStack, id);
 }
 
 AssignStm::~AssignStm() { delete exp; }
@@ -56,6 +62,10 @@ void PrintStm::prettyPrint() {
 
 void PrintStm::codeGen() {
   exps->codeGen();
+}
+
+void PrintStm::buildSymbolTable() {
+  exps->buildSymbolTable();
 }
 
 PrintStm::~PrintStm() { delete exps; }
@@ -107,7 +117,27 @@ void WhileStm::codeGen() {
   cout << "skip_while" << whileStmCounter << ":" << endl;
 }
 
+void WhileStm::buildSymbolTable() {
+  cond->buildSymbolTable();
+  stm->buildSymbolTable();
+}
+
 WhileStm::~WhileStm() { delete cond; delete stm; }
+
+FunctionDefinition::FunctionDefinition(const std::string& id, Stm* stm) : id(id), stm(stm) {}
+
+void FunctionDefinition::prettyPrint() {}
+
+void FunctionDefinition::codeGen() {}
+
+void FunctionDefinition::buildSymbolTable() {
+  Node::scopeStack = pushScope(Node::scopeStack);
+  stm->buildSymbolTable();
+  dumpScope(Node::scopeStack);
+  Node::scopeStack = popScope(Node::scopeStack);
+}
+
+FunctionDefinition::~FunctionDefinition() { delete stm; }
 
 IdExp::IdExp(const std::string& id) : id(id) {}
 
@@ -117,6 +147,10 @@ void IdExp::prettyPrint() {
 
 void IdExp::codeGen() {
   cout << "    mov eax, [ebp - " << getOffset(Node::scopeStack, id) << "]" << endl;
+}
+
+void IdExp::buildSymbolTable() {
+  if (symbolLookup(Node::scopeStack, id) == NULL) throw(id);
 }
 
 NumExp::NumExp(long long num) : num(num) {}
@@ -177,6 +211,11 @@ void OpExp::codeGen() {
   }
 }
 
+void OpExp::buildSymbolTable() {
+  left->buildSymbolTable();
+  right->buildSymbolTable();
+}
+
 OpExp::~OpExp() { delete left; delete right; }
 
 Cond::Cond(Exp* left, int oper, Exp* right) : left(left), oper(oper), right(right) {}
@@ -214,6 +253,11 @@ void Cond::codeGen() {
   cout << "    cmp edi, eax" << endl;
 }
 
+void Cond::buildSymbolTable() {
+  left->buildSymbolTable();
+  right->buildSymbolTable();
+}
+
 Cond::~Cond() { delete left; delete right; }
 
 PairExpList::PairExpList(ExpList* head, Exp* tail) : head(head), tail(tail) {}
@@ -230,6 +274,11 @@ void PairExpList::codeGen() {
   cout << "    call print_eax" << endl;
 }
 
+void PairExpList::buildSymbolTable() {
+  head->buildSymbolTable();
+  tail->buildSymbolTable();
+}
+
 PairExpList::~PairExpList() { delete head; delete tail; }
 
 LastExpList::LastExpList(Exp* head) : head(head) {}
@@ -241,6 +290,10 @@ void LastExpList::prettyPrint() {
 void LastExpList::codeGen() {
   head->codeGen();
   cout << "    call print_eax" << endl;
+}
+
+void LastExpList::buildSymbolTable() {
+  head->buildSymbolTable();
 }
 
 LastExpList::~LastExpList() { delete head; }

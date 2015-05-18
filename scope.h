@@ -19,5 +19,6 @@ Table* symbolLookup(Scope* currentScope, std::string identifier);
 int getOffset(Scope* currentScope, std::string identifier);
 Scope* pushScope(Scope* currentScope);
 Scope* popScope(Scope* currentScope);
+void dumpScope(Scope* currentScope);
 
 #endif

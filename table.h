@@ -24,5 +24,6 @@ Table* symbolLookup(Table* symbolTable, std::string identifier);
 // distance from the offset, so that the first variable will return 4, 
 // the second variable will return 8, etc.
 int getOffset(Table* symbolTable, std::string identifier);
+void dumpTable(Table* symbolTable);
 
 #endif

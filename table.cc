@@ -44,3 +44,12 @@ int getOffset(Table* symbolTable, string identifier) {
     return getOffset(symbolTable->next, identifier);
   }
 }
+
+void dumpTable(Table* symbolTable) {
+  Table* temp = symbolTable;
+  while (temp != NULL) {
+    cout << temp->identifier << "[" << temp->memOffset << "] ";
+    temp = temp->next;
+  }
+  cout << endl;
+}

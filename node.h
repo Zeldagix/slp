@@ -17,6 +17,7 @@ public:
     static int whileStmCounter;
     virtual void prettyPrint() = 0;
     virtual void codeGen() = 0;
+    virtual void buildSymbolTable() {};
     virtual ~Node() {};
 };
 
@@ -30,6 +31,7 @@ public:
     CompoundStm(Stm* stm1, Stm* stm2);
     void prettyPrint();
     void codeGen();
+    void buildSymbolTable();
     ~CompoundStm();
 };
 
@@ -40,6 +42,7 @@ public:
     AssignStm(const std::string& id, Exp* exp);
     void prettyPrint();
     void codeGen();
+    void buildSymbolTable();
     ~AssignStm();
 };
 
@@ -49,6 +52,7 @@ public:
     PrintStm(ExpList* exps);
     void prettyPrint();
     void codeGen();
+    void buildSymbolTable();
     ~PrintStm();
 };
 
@@ -60,7 +64,19 @@ public:
     WhileStm(Cond* cond, Stm* stm);
     void prettyPrint();
     void codeGen();
+    void buildSymbolTable();
     ~WhileStm();
+};
+
+class FunctionDefinition : public Stm {
+public:
+    std::string id;
+    Stm* stm;
+    FunctionDefinition(const std::string& id, Stm* stm);
+    void prettyPrint();
+    void codeGen();
+    void buildSymbolTable();
+    ~FunctionDefinition();
 };
 
 class Exp : public Node {
@@ -72,6 +88,7 @@ public:
     IdExp(const std::string& id);
     void prettyPrint();
     void codeGen();
+    void buildSymbolTable();
 };
 
 class NumExp : public Exp {
@@ -94,6 +111,7 @@ public:
     OpExp(Exp* left, int oper, Exp* right);
     void prettyPrint();
     void codeGen();
+    void buildSymbolTable();
     ~OpExp();
 };
 
@@ -111,6 +129,7 @@ public:
     Cond(Exp* left, int oper, Exp* right);
     void prettyPrint();
     void codeGen();
+    void buildSymbolTable();
     ~Cond();
 };
 
@@ -124,6 +143,7 @@ public:
     PairExpList(ExpList* head, Exp* tail);
     void prettyPrint();
     void codeGen();
+    void buildSymbolTable();
     ~PairExpList();
 };
 
@@ -133,6 +153,7 @@ public:
     LastExpList(Exp* head);
     void prettyPrint();
     void codeGen();
+    void buildSymbolTable();
     ~LastExpList();
 };
 

@@ -30,6 +30,7 @@
 "}"						return TOKEN(TRBRACE);
 "print"                 return TOKEN(TPRINT);
 "while"					return TOKEN(TWHILE);
+"def"					return TOKEN(TDEF);
 [a-zA-z][a-zA-Z0-9]*    SAVE_TOKEN; return TIDENTIFIER;
 [0-9]+                  SAVE_TOKEN; return TINTEGER;
 .                       std::cout << "Unknown token!" << std::endl; yyterminate();

@@ -35,3 +35,11 @@ Scope* popScope(Scope* currentScope) {
   return currentScope->next;
 }
 
+void dumpScope(Scope* currentScope) {
+  Scope* temp = currentScope;
+  while (temp != NULL) {
+    dumpTable(temp->table);
+    temp = temp->next;
+  }
+}
+
