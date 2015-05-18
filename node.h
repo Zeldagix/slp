@@ -82,6 +82,14 @@ public:
     ~FunctionDefinition();
 };
 
+class FunctionCall : public Stm {
+public:
+    std::string id;
+    FunctionCall(const std::string &id);
+    void prettyPrint();
+    void codeGen();
+};
+
 class Exp : public Node {
 };
 

@@ -129,9 +129,7 @@ FunctionDefinition::FunctionDefinition(const std::string& id, Stm* stm) : id(id)
 
 void FunctionDefinition::prettyPrint() {}
 
-void FunctionDefinition::codeGen() {
-  stm->codeGen();
-}
+void FunctionDefinition::codeGen() {}
 
 void FunctionDefinition::buildSymbolTable() {
   Table* temp = Node::symbolTable;
@@ -142,6 +140,25 @@ void FunctionDefinition::buildSymbolTable() {
 }
 
 FunctionDefinition::~FunctionDefinition() { delete stm; }
+
+FunctionCall::FunctionCall(const std::string& id) : id(id) {}
+
+void FunctionCall::prettyPrint() {}
+
+void FunctionCall::codeGen() {
+  Table* tempTable = Node::symbolTable;
+  Node* tempNode = getAST(Node::fnTable, id);
+  Node::symbolTable = getSymbolTable(Node::fnTable, id);
+  int offset = Node::symbolTable->memOffset;
+
+  cout << "    push ebp" << endl;
+  cout << "    mov ebp, esp" << endl;
+  cout << "    sub esp, " << offset << endl;
+  dynamic_cast<FunctionDefinition*>(tempNode)->stm->codeGen();
+  cout << "    add esp, " << offset << endl;
+  cout << "    pop ebp" << endl;
+  Node::symbolTable = tempTable;
+}
 
 IdExp::IdExp(const std::string& id) : id(id) {}
 

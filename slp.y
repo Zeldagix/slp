@@ -61,7 +61,7 @@ fn_def          :   TDEF TIDENTIFIER TLPAREN TRPAREN TLBRACE statements TRBRACE 
                         Node::fnTable = functionInsert(Node::fnTable, *$2, $$, NULL);
                         delete $2; }
 
-fn_call         :   TIDENTIFIER TLPAREN TRPAREN TSEMI {}
+fn_call         :   TIDENTIFIER TLPAREN TRPAREN TSEMI { $$ = new FunctionCall(*$1); delete $1; }
 
 expression      :   TIDENTIFIER { $$ = new IdExp(*$1); delete $1; }
                 |   TINTEGER { $$ = new NumExp(atol($1->c_str())); delete $1; }
