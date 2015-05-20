@@ -22,5 +22,6 @@
 
 void emitBoilerplatePre();
 void emitBoilerplatePost();
+void emitFunctions();
 
 #endif

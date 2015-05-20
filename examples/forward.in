@@ -1,0 +1,21 @@
+def doM() {
+	a := 1;
+	while (a > 0) {
+		print(42);
+		a := a - 1;
+	}
+}
+
+a := 10;
+while (a > 0) {
+	doMath();
+	a := a - 1;
+}
+
+def doMath() {
+	a := 1;
+	while (a <= 32) {
+		print(a);
+		a := a * 2;
+	}
+}

@@ -31,6 +31,7 @@ void emitBoilerplatePost() {
 	cout << "    mov eax, 1" << endl;
 	cout << "    int 0x80" << endl;
 	cout << endl;
+	emitFunctions();
 	cout << "print_eax:" << endl;
 	cout << "    mov edi, 0" << endl;
 	cout << endl;
@@ -64,4 +65,26 @@ void emitBoilerplatePost() {
 	cout << endl;
 	cout << "    ret" << endl;
 	cout << endl;
+}
+
+void emitFunctions() {
+	FunctionTable* current = Node::fnTable;
+	while (current != NULL) {
+		Table* tempTable = Node::symbolTable;
+		Node* tempNode = getAST(Node::fnTable, current->id);
+		Node::symbolTable = getSymbolTable(Node::fnTable, current->id);
+  		int offset = Node::symbolTable->memOffset;
+
+  		cout << "fn_" << current->id << ":" << endl;
+  		cout << "    push ebp" << endl;
+		cout << "    mov ebp, esp" << endl;
+		cout << "    sub esp, " << offset << endl;
+		dynamic_cast<FunctionDefinition*>(tempNode)->stm->codeGen();
+		cout << "    add esp, " << offset << endl;
+		cout << "    pop ebp" << endl;
+		cout << "    ret" << endl;
+		cout << endl;
+		Node::symbolTable = tempTable;
+		current = current->next;
+	}
 }
