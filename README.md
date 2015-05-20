@@ -25,7 +25,7 @@ Statements are terminated using a semicolon.
 
 The language provides a built-in print statement which takes in a comma-delimited list of expressions and sends the result of each one to standard output.
 
-Example: The following cpiece of code prints the number "2" five times.
+Example: The following piece of code prints the number "2" five times.
 ````
 a := 5;
 while (a > 0) {
