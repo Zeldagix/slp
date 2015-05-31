@@ -6,7 +6,7 @@ def doM() {
 	}
 }
 
-a := 10;
+a := 9;
 while (a > 0) {
 	doMath();
 	a := a - 1;
